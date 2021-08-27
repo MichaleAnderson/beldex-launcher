@@ -1,0 +1,65 @@
+FROM ubuntu:16.04
+
+RUN set -ex && \
+    apt-get update && \
+    apt-get --no-install-recommends --yes install ca-certificates curl xz-utils unzip && \
+    apt-get clean && \
+    rm -rf /var/lib/apt
+ARG node_ver=10
+ENV node_var ${node_ver}
+RUN curl -sL https://deb.nodesource.com/setup_${node_ver}.x | bash - && apt-get install -y nodejs
+
+# set up user per guide
+WORKDIR /home
+RUN mkdir mnode && useradd mnode && chown mnode mnode && usermod -aG sudo mnode
+WORKDIR /home/mnode
+
+# install local dev version
+ADD https://github.com/beldex-project/beldex/releases/download/v3.0.6/beldex-linux-x64-v3.0.6.tar.xz .
+RUN tar xvf beldex-linux-x64-v3.0.6.tar.xz && ln -snf beldex-linux-x64-v3.0.6 beldex
+
+# set up systemd
+RUN echo $'[Unit]\n\
+Description=beldexd master node\n\
+After=network-online.target\n\
+\n\
+[Service]\n\
+Type=simple\n\
+User=mnode\n\
+ExecStart=/home/mnode/beldex/beldexd --non-interactive --master-node\n\
+Restart=always\n\
+RestartSec=30s\n\
+\n\
+[Install]\n\
+WantedBy=multi-user.target\n\' > /etc/systemd/system/beldexd.service
+#RUN systemctl daemon-reload && systemctl enable beldexd.service && systemctl start beldexd.service && sleep 30 && beldex/beldexd status
+
+WORKDIR /usr/src/app
+
+#ADD *.js .
+COPY config.js .
+COPY daemon.js .
+COPY get-uid.js .
+COPY index.js .
+COPY ini.js .
+COPY lets_tcp.js .
+COPY lib.js .
+COPY lib.networkTest.js .
+COPY modes/check-systemd.js modes/
+COPY modes/bw-test.js modes/
+COPY modes/client.js modes/
+COPY modes/download-binaries.js modes/
+COPY modes/fix-perms.js modes/
+COPY modes/prequal.js modes/
+COPY modes/status.js modes/
+COPY belnet.js .
+COPY start.js .
+COPY uid.js .
+COPY web_api.js .
+
+# configure npm
+COPY package.json .
+
+# install the CLI utility
+RUN npm i -g
+

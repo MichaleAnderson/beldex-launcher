@@ -1,0 +1,29 @@
+{
+  "name": "beldex-launcher",
+  "version": "0.0.0git",
+  "description": "manages the Beldex.network suite of software primarily for master node operation",
+  "main": "index.js",
+  "dependencies": {
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/beldex-project/beldex-launcher.git"
+  },
+  "keywords": [
+    "beldex",
+    "belnet"
+  ],
+  "author": "Ryan Tharp",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/beldex-project/beldex-launcher/issues"
+  },
+  "homepage": "https://github.com/beldex-project/beldex-launcher#readme",
+  "bin": {
+    "beldex-launcher": "./index.js"
+  }
+}
